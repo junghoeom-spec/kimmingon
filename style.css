@@ -83,3 +83,10 @@
 .submit-btn:hover {
   background-color: #3730a3;
 }
+
+/* 댓글 섹션 */
+.disqus-section {
+  max-width: 600px;
+  margin: 40px auto 60px;
+  padding: 0 20px;
+}
