@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>군대식 알람 시계</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: #1a1a2e;
+      color: #e0e0e0;
+      font-family: 'Courier New', Courier, monospace;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      overflow: hidden;
+    }
+
+    .container {
+      text-align: center;
+      width: 90%;
+      max-width: 500px;
+    }
+
+    .title {
+      font-size: 1.4rem;
+      color: #4caf50;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    .subtitle {
+      font-size: 0.85rem;
+      color: #888;
+      margin-bottom: 40px;
+      letter-spacing: 2px;
+    }
+
+    .clock-display {
+      background: #0d0d1a;
+      border: 2px solid #4caf50;
+      border-radius: 12px;
+      padding: 30px 20px;
+      margin-bottom: 30px;
+      box-shadow: 0 0 30px rgba(76, 175, 80, 0.3);
+      position: relative;
+    }
+
+    .time-label {
+      font-size: 0.75rem;
+      color: #4caf50;
+      letter-spacing: 3px;
+      margin-bottom: 10px;
+    }
+
+    .current-time {
+      font-size: 4.5rem;
+      font-weight: bold;
+      color: #00ff41;
+      text-shadow: 0 0 20px rgba(0, 255, 65, 0.5);
+      letter-spacing: 4px;
+      line-height: 1;
+    }
+
+    .date-display {
+      font-size: 0.9rem;
+      color: #888;
+      margin-top: 10px;
+      letter-spacing: 2px;
+    }
+
+    .alarm-section {
+      background: #0d0d1a;
+      border: 2px solid #333;
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 20px;
+    }
+
+    .alarm-section h2 {
+      font-size: 0.9rem;
+      color: #4caf50;
+      letter-spacing: 3px;
+      margin-bottom: 20px;
+    }
+
+    .alarm-input-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .time-input {
+      background: #1a1a2e;
+      border: 2px solid #4caf50;
+      color: #00ff41;
+      font-size: 2rem;
+      font-family: 'Courier New', Courier, monospace;
+      text-align: center;
+      width: 80px;
+      padding: 8px 4px;
+      border-radius: 8px;
+      outline: none;
+    }
+
+    .time-input:focus {
+      box-shadow: 0 0 15px rgba(76, 175, 80, 0.5);
+    }
+
+    .time-separator {
+      font-size: 2rem;
+      color: #4caf50;
+      font-weight: bold;
+    }
+
+    .btn {
+      background: transparent;
+      border: 2px solid #4caf50;
+      color: #4caf50;
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 0.85rem;
+      letter-spacing: 2px;
+      padding: 12px 24px;
+      border-radius: 8px;
+      cursor: pointer;
+      text-transform: uppercase;
+      transition: all 0.2s;
+      width: 100%;
+    }
+
+    .btn:hover {
+      background: #4caf50;
+      color: #0d0d1a;
+      box-shadow: 0 0 20px rgba(76, 175, 80, 0.5);
+    }
+
+    .btn:active {
+      transform: scale(0.97);
+    }
+
+    .btn.stop-btn {
+      border-color: #f44336;
+      color: #f44336;
+    }
+
+    .btn.stop-btn:hover {
+      background: #f44336;
+      color: #fff;
+      box-shadow: 0 0 20px rgba(244, 67, 54, 0.5);
+    }
+
+    .btn.cancel-btn {
+      border-color: #888;
+      color: #888;
+      margin-top: 10px;
+    }
+
+    .btn.cancel-btn:hover {
+      background: #888;
+      color: #0d0d1a;
+    }
+
+    .status-bar {
+      background: #0d0d1a;
+      border: 2px solid #333;
+      border-radius: 8px;
+      padding: 14px;
+      font-size: 0.85rem;
+      color: #888;
+      letter-spacing: 1px;
+    }
+
+    .status-bar.active {
+      border-color: #4caf50;
+      color: #4caf50;
+    }
+
+    .status-bar.ringing {
+      border-color: #f44336;
+      color: #f44336;
+      animation: pulse-border 0.5s ease-in-out infinite alternate;
+    }
+
+    @keyframes pulse-border {
+      from { box-shadow: 0 0 10px rgba(244, 67, 54, 0.3); }
+      to   { box-shadow: 0 0 30px rgba(244, 67, 54, 0.8); }
+    }
+
+    .blink {
+      animation: blink-anim 1s step-start infinite;
+    }
+
+    @keyframes blink-anim {
+      50% { opacity: 0; }
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .alarm-set-display {
+      font-size: 1.2rem;
+      color: #00ff41;
+      font-weight: bold;
+      margin: 6px 0;
+    }
+
+    footer {
+      margin-top: 30px;
+      font-size: 0.7rem;
+      color: #444;
+      letter-spacing: 2px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="title">군대식 알람 시계</div>
+    <div class="subtitle">Korea Standard Time (KST, UTC+9)</div>
+
+    <div class="clock-display">
+      <div class="time-label">현재 시각</div>
+      <div class="current-time" id="currentTime">00:00:00</div>
+      <div class="date-display" id="currentDate"></div>
+    </div>
+
+    <div class="alarm-section">
+      <h2>알람 설정</h2>
+      <div class="alarm-input-row">
+        <input class="time-input" type="number" id="alarmHour" min="0" max="23" placeholder="00" maxlength="2">
+        <span class="time-separator">:</span>
+        <input class="time-input" type="number" id="alarmMin" min="0" max="59" placeholder="00" maxlength="2">
+      </div>
+      <button class="btn" id="setAlarmBtn" onclick="setAlarm()">알람 설정</button>
+      <button class="btn cancel-btn hidden" id="cancelAlarmBtn" onclick="cancelAlarm()">알람 취소</button>
+    </div>
+
+    <div class="status-bar" id="statusBar">대기 중...</div>
+
+    <div class="alarm-section hidden" id="ringingSection">
+      <div class="alarm-set-display blink">기상나팔 울리는 중!</div>
+      <button class="btn stop-btn" onclick="stopAlarm()">알람 끄기</button>
+    </div>
+
+    <footer>Powered by Web Audio API &middot; KST</footer>
+  </div>
+
+  <script>
+    let alarmTime = null;
+    let isAlarmSet = false;
+    let isRinging = false;
+    let audioCtx = null;
+    let alarmInterval = null;
+    let ringingNodes = [];
+
+    // 한국시간 가져오기 (KST = UTC+9)
+    function getKST() {
+      const now = new Date();
+      const utc = now.getTime() + now.getTimezoneOffset() * 60000;
+      return new Date(utc + 9 * 3600000);
+    }
+
+    // 시계 업데이트
+    function updateClock() {
+      const kst = getKST();
+      const h = String(kst.getHours()).padStart(2, '0');
+      const m = String(kst.getMinutes()).padStart(2, '0');
+      const s = String(kst.getSeconds()).padStart(2, '0');
+      document.getElementById('currentTime').textContent = `${h}:${m}:${s}`;
+
+      const days = ['일', '월', '화', '수', '목', '금', '토'];
+      const year = kst.getFullYear();
+      const month = String(kst.getMonth() + 1).padStart(2, '0');
+      const date = String(kst.getDate()).padStart(2, '0');
+      const day = days[kst.getDay()];
+      document.getElementById('currentDate').textContent = `${year}년 ${month}월 ${date}일 (${day})`;
+
+      // 알람 체크
+      if (isAlarmSet && !isRinging) {
+        const ah = alarmTime.h;
+        const am = alarmTime.m;
+        if (kst.getHours() === ah && kst.getMinutes() === am && kst.getSeconds() === 0) {
+          triggerAlarm();
+        }
+      }
+    }
+
+    // 알람 설정
+    function setAlarm() {
+      const h = parseInt(document.getElementById('alarmHour').value);
+      const m = parseInt(document.getElementById('alarmMin').value);
+
+      if (isNaN(h) || isNaN(m) || h < 0 || h > 23 || m < 0 || m > 59) {
+        setStatus('올바른 시간을 입력하세요. (시: 0~23, 분: 0~59)', 'default');
+        return;
+      }
+
+      alarmTime = { h, m };
+      isAlarmSet = true;
+
+      const hStr = String(h).padStart(2, '0');
+      const mStr = String(m).padStart(2, '0');
+      setStatus(`알람 설정됨: ${hStr}:${mStr}`, 'active');
+
+      document.getElementById('setAlarmBtn').textContent = `알람: ${hStr}:${mStr}`;
+      document.getElementById('cancelAlarmBtn').classList.remove('hidden');
+    }
+
+    // 알람 취소
+    function cancelAlarm() {
+      isAlarmSet = false;
+      alarmTime = null;
+      setStatus('대기 중...', 'default');
+      document.getElementById('setAlarmBtn').textContent = '알람 설정';
+      document.getElementById('cancelAlarmBtn').classList.add('hidden');
+    }
+
+    // 알람 발동
+    function triggerAlarm() {
+      isRinging = true;
+      setStatus('기상나팔 울리는 중!', 'ringing');
+      document.getElementById('ringingSection').classList.remove('hidden');
+      playReveille();
+    }
+
+    // 알람 끄기
+    function stopAlarm() {
+      isRinging = false;
+      stopReveille();
+      document.getElementById('ringingSection').classList.add('hidden');
+      cancelAlarm();
+      setStatus('알람 종료. 기상!', 'default');
+    }
+
+    // 상태바 업데이트
+    function setStatus(msg, type) {
+      const bar = document.getElementById('statusBar');
+      bar.textContent = msg;
+      bar.className = 'status-bar';
+      if (type === 'active') bar.classList.add('active');
+      if (type === 'ringing') bar.classList.add('ringing');
+    }
+
+    // 군대식 기상나팔 Web Audio API로 합성
+    // 기상나팔(Reveille) 음표 배열: [주파수(Hz), 박자(초)]
+    const REVEILLE_NOTES = [
+      // 1절
+      [392, 0.15], [392, 0.15], [392, 0.15],               // G4 G4 G4
+      [523, 0.45],                                           // C5 (긴)
+      [392, 0.15], [392, 0.15],                             // G4 G4
+      [523, 0.45],                                           // C5
+      [392, 0.15], [523, 0.15], [659, 0.15],               // G4 C5 E5
+      [784, 0.60],                                           // G5 (긴)
+      // 2절
+      [784, 0.20], [659, 0.20], [523, 0.20],               // G5 E5 C5
+      [659, 0.60],                                           // E5 (긴)
+      [784, 0.20], [659, 0.20], [523, 0.20],               // G5 E5 C5
+      [659, 0.60],                                           // E5
+      // 3절
+      [784, 0.20], [784, 0.20], [784, 0.20],               // G5 G5 G5
+      [1047, 0.60],                                          // C6 (긴)
+      [784, 0.20], [659, 0.20], [523, 0.20],               // G5 E5 C5
+      [784, 1.00],                                           // G5 (매우 긴)
+      // 4절 (반복 강조)
+      [523, 0.20], [659, 0.20], [784, 0.20],               // C5 E5 G5
+      [784, 0.20], [659, 0.20], [523, 0.20],               // G5 E5 C5
+      [659, 0.60],                                           // E5
+      [523, 0.20], [659, 0.20], [784, 0.20],               // C5 E5 G5
+      [1047, 1.20],                                          // C6 (피날레)
+    ];
+
+    let reveilleTimeout = null;
+
+    function playReveille() {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      playReveilleLoop();
+    }
+
+    function playReveilleLoop() {
+      if (!isRinging) return;
+
+      let time = audioCtx.currentTime + 0.05;
+      const masterGain = audioCtx.createGain();
+      masterGain.gain.setValueAtTime(0.5, audioCtx.currentTime);
+      masterGain.connect(audioCtx.destination);
+
+      REVEILLE_NOTES.forEach(([freq, dur]) => {
+        // 메인 오실레이터 (나팔 음색)
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+
+        // 나팔 음색: sawtooth + 필터로 브라스 느낌
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(freq, time);
+
+        const filter = audioCtx.createBiquadFilter();
+        filter.type = 'lowpass';
+        filter.frequency.setValueAtTime(1800, time);
+        filter.Q.setValueAtTime(1.5, time);
+
+        // 어택/릴리즈 엔벨로프
+        gain.gain.setValueAtTime(0, time);
+        gain.gain.linearRampToValueAtTime(0.6, time + 0.03);
+        gain.gain.setValueAtTime(0.6, time + dur - 0.04);
+        gain.gain.linearRampToValueAtTime(0, time + dur);
+
+        osc.connect(filter);
+        filter.connect(gain);
+        gain.connect(masterGain);
+
+        osc.start(time);
+        osc.stop(time + dur);
+
+        ringingNodes.push(osc);
+        time += dur + 0.02;
+      });
+
+      const totalDur = REVEILLE_NOTES.reduce((s, [, d]) => s + d + 0.02, 0);
+
+      reveilleTimeout = setTimeout(() => {
+        if (isRinging) playReveilleLoop();
+      }, (time - audioCtx.currentTime + 0.5) * 1000);
+    }
+
+    function stopReveille() {
+      if (reveilleTimeout) {
+        clearTimeout(reveilleTimeout);
+        reveilleTimeout = null;
+      }
+      ringingNodes.forEach(node => {
+        try { node.stop(); } catch (_) {}
+      });
+      ringingNodes = [];
+      if (audioCtx) {
+        audioCtx.close();
+        audioCtx = null;
+      }
+    }
+
+    // 시작
+    updateClock();
+    setInterval(updateClock, 1000);
+
+    // 숫자 입력 자동 패딩
+    document.getElementById('alarmHour').addEventListener('input', function() {
+      if (this.value > 23) this.value = 23;
+      if (this.value < 0) this.value = 0;
+    });
+    document.getElementById('alarmMin').addEventListener('input', function() {
+      if (this.value > 59) this.value = 59;
+      if (this.value < 0) this.value = 0;
+    });
+
+    // Enter 키로도 설정
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter' && !isRinging) setAlarm();
+      if (e.key === 'Escape' && isRinging) stopAlarm();
+    });
+  </script>
+</body>
+</html>
